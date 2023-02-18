@@ -1,13 +1,9 @@
-import { defineStore } from 'pinia'   // 导入 defineStore
+import { defineStore } from 'pinia'
+import router, {setRoutes} from "@/router";
 
-// 你可以对 `defineStore()` 的返回值进行任意命名，但最好使用 store 的名字，
-// 同时以 `use` 开头且以 `Store` 结尾。(比如 `useUserStore`，
-// `useCartStore`，`useProductStore`)
-// 第一个参数是你的应用中 Store 的唯一 ID。
-export const useUserStore = defineStore('user', {
-  // 其他配置...
-  state: () => ({
-    managerInfo: {}   // {  user: {}, token: '' }
+export const useUserStore = defineStore('manager', {
+    state: () => ({
+        managerInfo: {}
     }),
     getters: {
         getUserId() {
@@ -21,17 +17,28 @@ export const useUserStore = defineStore('user', {
         },
         getToken() {
             return this.managerInfo.token || ""
+        },
+        getMenus() {
+            return this.managerInfo.menus || []
+        },
+        getAuths() {
+            return this.managerInfo.auths.length ? this.managerInfo.auths.map(v => v.auth) : []
         }
     },
     actions: {
         setManagerInfo(managerInfo) {
             this.managerInfo = managerInfo
+            // 设置路由
+            setRoutes(managerInfo.menus)
         },
         setUser(user) {
             this.managerInfo.user = JSON.parse(JSON.stringify(user))
-            // this.loginInfo.user = user
+        },
+        logout() {
+            localStorage.removeItem('manager')
+            router.push('/login')
         }
     },
-    //数据持久化
+    // 开启数据持久化
     persist: true
 })
